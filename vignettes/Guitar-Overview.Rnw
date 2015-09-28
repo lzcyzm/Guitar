@@ -1,0 +1,115 @@
+%\VignetteIndexEntry{Sample Guitar workflow}
+%\VignetteKeywords{Guitar,visualization,sequencing,RNA methylation,m6A, m5C}
+%\VignettePackage{Guitar}
+\documentclass[]{article}
+
+\usepackage{times}
+\usepackage{hyperref}
+
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\texttt{#1}}}
+\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rcode}[1]{{\texttt{#1}}}
+
+\newcommand{\software}[1]{\textsf{#1}}
+\newcommand{\R}{\software{R}}
+\newcommand{\exomePeak}{\Rpackage{exomePeak}}
+\newcommand{\bam}{\texttt{BAM}}
+
+
+\title{An Introduction to \Rpackage{Guitar}}
+\author{Jia Meng, PhD}
+\date{Modified: 25 Sept, 2015. Compiled: \today}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+<<options,echo=FALSE>>=
+options(width=60)
+@ 
+
+
+\section{Quick Start with Guitar}
+This is a manual for Guitar package. The Guitar package is aimed for RNA landmark-\underline{\textbf{gui}}ded \underline{\textbf{t}}ranscriptomic \underline{\textbf{a}}nalysis of RNA-reated genomic featu\underline{\textbf{r}}es. 
+
+The Guitar package enables the comparison of multiple genomic features, which need to be stored in a name list. Please see the following example, which will read 1000 RNA m6A methylation sites into R, and then splitted them into 3 groups to be examined. Of course, in real data analysis, the 3 groups of features are likely to be from different resources.
+<<Genomic Features>>=
+library(Guitar)
+narrowPeak <- system.file(
+  "extdata", "m6A_hg19_1000peaks_macs2.narrowPeak", 
+  package="Guitar")
+# genomic features imported into named list
+m6A_Bcell <- narrowPeaktoGRanges(narrowPeak) 
+m6A_Bcell_1 <- m6A_Bcell[1:300]
+m6A_Bcell_2 <- m6A_Bcell[301:600]
+m6A_Bcell_3 <- m6A_Bcell[601:900]
+feature_hg19 <- list(m6A_Bcell_1, m6A_Bcell_2, m6A_Bcell_3) 
+names(feature_hg19) <- c("Group_1","Group_2","Group_3")
+@ 
+
+With the following script, we may generate the transcriptomic distribution of genomic features to be tested, and the result will be automatically saved into a PDF file under the working directory with prefix "example". With the GuitarPlot function, the gene annotation can be downloaded from internet automatically with a genome assembly number provided; however, this feature requires working internet and might take a longer time. The toy Guitar coordinates generated internally should never be re-used in other real data analysis.
+<<label=rep_dendro_1_plot,eval=FALSE>>=
+count <- GuitarPlot(feature_hg19, 
+           genome="hg19", 
+           saveToPDFprefix = "example")
+@
+
+
+In a more efficent protocol, in order to re-use the gene annotation and Guitar coordiantes, you will have to build Guitar Coordiantes from a \Rclass{TxDb} object in a separate step. The transcriptDb contains the gene annotation information and can be obtained in a number of ways, .e.g, with command \Rfunction{makeTxDbFromUCSC} from \Rpackage{GenomicFeatures} package to download the complete gene annotation of species from UCSC automatically, which might takes a few minutes. In the following analysis, we load the \Rclass{TxDb} object from a toy dataset provided with the Guitar package. Please note that this is only a very small part of the complete hg19 transcriptome, and the \Rclass{TxDb} object provided with Guitar package should not be used in real data analysis. 
+<<Txdb>>=
+txdb_file <- system.file("extdata", "hg19_toy.sqlite", 
+                         package="Guitar")
+txdb <- loadDb(txdb_file)
+# Or use makeTxDbFromUCSC() to download TxDb from internet
+# txdb <- makeTxDbFromUCSC(genome="hg19)
+@
+
+With a \Rclass{TxDb} object that contains gene annotation information, we in the next build Guitar coordiantes, which is essentially a bridge connects the transcriptomic landmarks and genomic coordinates. The parameter \Rcode{noBins=20} defines the resolution of your analysis, higher resolution will lead to increases computation time and memory usage.
+<<guitar coordiantes>>=
+gc_txdb <- makeGuitarCoordsFromTxDb(txdb, noBins=20)
+@
+
+You may now generate the Guitar plot from the named list of genome-based features and the prebuilt Guitar coordinates.
+<<label=Guitarcoordiantes, fig=TRUE,echo=TRUE,height=6,width=12>>=
+count <- GuitarPlot(feature_hg19, 
+           GuitarCoordsFromTxDb = gc_txdb,
+           saveToPDFprefix = "example2")
+@
+
+The figure generated reflects the true size of RNA components (5'UTR, CDS and 3'UTR); alternatively, you may cancel the component rescaling, and treat each component equally with option \Rcode{rescaleComponent=FALSE}. The figure generated in this way looks clearer, but the relative size of the components will be missing. In this way, 5'UTR, although is mucher smaller, shows up to be of the same size as CDS and 3'UTR.
+<<label=withDNA2, fig=TRUE,echo=TRUE,height=6,width=12>>=
+count <- GuitarPlot(feature_hg19, 
+           GuitarCoordsFromTxDb = gc_txdb,
+           rescaleComponent=FALSE)
+@
+
+Alternatively, you may also stack everthing together to see their relative location-specific density compared with other features tested, or you may also optionally include the promoter DNA region and its complementary region on the 3' side of a transcript in the plot with parameter \Rcode{includeNeighborDNA =TRUE} and \Rcode{fill=TRUE}. 
+<<label=withDNA3,fig=TRUE,echo=TRUE,height=6,width=12>>=
+count <- GuitarPlot(feature_hg19, 
+           GuitarCoordsFromTxDb = gc_txdb,
+           includeNeighborDNA =TRUE,
+           rescaleComponent=FALSE,
+           fill=TRUE)
+@
+
+
+\section{Guitar Coordinates - Transcriptomic Landmarks Projected on Genome} 
+The "GuitarCoordsFromTxDb" object contains the genome-projected transcriptome coordinates, which can be valuable for evaluating transcriptomic information related applications, such as checking the quality of MeRIP-Seq data. The Guitar coordinates are essentially the genomic projection of standardized transcript-based coordiantes, making a viable bridge beween the landmarks on transcript and genome-based coordinates. The referred "transcript id", standardized position, the interval between two adjacent check points on that components, component name and type are assessible with "mcols" function.
+
+<<label=session,eval=TRUE>>=
+head(gc_txdb)
+mcols(gc_txdb)
+@
+
+
+\section{Session Information} 
+<<label=session,eval=TRUE>>=
+sessionInfo()
+@
+
+\end{document}

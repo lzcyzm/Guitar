@@ -1,0 +1,19 @@
+
+version 0.0.2: (2015-6-25)
+- first version, doesn't work
+
+version 0.1.0: (2015-7-5)
+- work now, with built-in examples. (see ?TravisPlot)
+
+version 0.2.0: (2015-8-5)
+- added promoter and tail (see ?getNeighborhood)
+- import NarrowPeak from MACS2 (see ?narrowPeak2GRanges)
+- plot mRNA and lncRNA in a single figure
+
+version 0.3.0: (2015-9-11)
+- enable the rescaling of genomic components
+- enable the ambiguous mapping of genomic features
+- completed a tutorial
+
+version 0.99.9: (2015-9-25)
+- package renamed as "guitar" 

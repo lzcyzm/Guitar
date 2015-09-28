@@ -1,0 +1,17 @@
+Package: Guitar
+Type: Package
+Title: Guitar
+Version: 0.99.14
+Date: 2015-09-26
+Author: Jia Meng
+Maintainer: Jia Meng <jia.meng@xjtlu.edu.cn>
+Description: The package is designed for visualization of RNA-related
+        genomic features with respect to the landmarks of RNA
+        transcripts, i.e., transcription starting site, start codon,
+        stop codon and transcription ending site.
+License: GPL-2
+Depends: Rsamtools, GenomicFeatures, rtracklayer, GenomicAlignments,
+        GenomicRanges, ggplot2, grid, IRanges
+biocViews: Sequencing, SplicedAlignment, Alignment, DataImport, RNASeq,
+        MethylSeq, QualityControl, Transcription, Coverage
+NeedsCompilation: no
