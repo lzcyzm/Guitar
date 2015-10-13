@@ -1,0 +1,17 @@
+exportPattern("^[[:alpha:]]+")
+export(BED12toGRangesList)
+export(makeGuitarCoordsFromGRangesList)
+export(makeGuitarCoordsFromTxDb)
+export(GuitarPlot)
+export(narrowPeaktoGRanges)
+export(getNeighborhood)
+import(Rsamtools)
+import(GenomicFeatures)
+import(rtracklayer)
+import(GenomicAlignments)
+import(GenomicRanges)
+import(ggplot2)
+import(IRanges)
+import(grid)
+
+
