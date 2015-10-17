@@ -17,3 +17,12 @@ version 0.3.0: (2015-9-11)
 
 version 0.99.9: (2015-9-25)
 - package renamed as "guitar" 
+
+version 0.99.15: (2015-9-30)
+- accepted at Biconductor
+
+version 0.99.17: (2015-10-09)
+- added more examples
+- genomic landmarks overlaps
+- mouse BS-Seq
+- mouse BAM and BED3

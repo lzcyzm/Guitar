@@ -376,6 +376,7 @@ GuitarPlot <- function(gfeatures,
         annotate("text", x = 0.5, y = -0.2, label = "5'UTR") +
         annotate("text", x = 1.5, y = -0.2, label = "CDS") +
         annotate("text", x = 2.5, y = -0.2, label = "3'UTR") + 
+        geom_vline(xintercept=1:2, linetype="dotted") + 
         theme(legend.position="bottom") +
         annotate("rect", xmin = 0, xmax = 1, ymin = -0.12, ymax = -0.08, alpha = .99, colour = "black")+
         annotate("rect", xmin = 2, xmax = 3, ymin = -0.12, ymax = -0.08, alpha = .99, colour = "black")+
