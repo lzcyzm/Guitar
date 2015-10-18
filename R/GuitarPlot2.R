@@ -24,10 +24,10 @@ GuitarPlot <- function(gfeatures,
       print("Downloading Transcriptome Information from UCSC ...")
       txdb <- suppressMessages(makeTxDbFromUCSC(genome=genome))
       print("Making Guitar Coordinates ...")
-      GuitarCoords <- suppressMessages(makeGuitarCoordsFromTxDb(txdb))
+      GuitarCoordsFromTxDb <- suppressMessages(makeGuitarCoordsFromTxDb(txdb))
     } else {
       print("Making Guitar Coordinates from provided TranscriptDb Object ...")
-      GuitarCoords <- makeGuitarCoordsFromTxDb(txdb, noBins=noBins)
+      GuitarCoordsFromTxDb <- makeGuitarCoordsFromTxDb(txdb, noBins=noBins)
     }
   } else {
     print("Using provided Guitar Coordinates")
