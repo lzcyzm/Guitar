@@ -14,4 +14,4 @@ Depends: Rsamtools, GenomicFeatures, rtracklayer, GenomicAlignments,
 biocViews: Sequencing, SplicedAlignment, Alignment, DataImport, RNASeq,
         MethylSeq, QualityControl, Transcription, Coverage
 NeedsCompilation: no
-Packaged: 2015-10-09 02:33:44 UTC; bioinfo
+Packaged: 2015-10-19 06:56:42 UTC; bioinfo
