@@ -52,7 +52,7 @@ feature_hg19 <- list(m6A_Bcell_1, m6A_Bcell_2, m6A_Bcell_3)
 names(feature_hg19) <- c("Group_1","Group_2","Group_3")
 @ 
 
-With the following script, we may generate the transcriptomic distribution of genomic features to be tested, and the result will be automatically saved into a PDF file under the working directory with prefix "example". With the GuitarPlot function, the gene annotation can be downloaded from internet automatically with a genome assembly number provided; however, this feature requires working internet and might take a longer time. The toy Guitar coordinates generated internally should never be re-used in other real data analysis.
+With the following script, we may generate the transcriptomic distribution of genomic features to be tested, and the result will be automatically saved into a PDF file under the working directory with prefix ``example''. With the \Rfunction{GuitarPlot} function, the gene annotation can be downloaded from internet automatically with a genome assembly number provided; however, this feature requires working internet and might take a longer time. The toy Guitar coordinates generated internally should never be re-used in other real data analysis.
 <<label=rep_dendro_1_plot,eval=FALSE>>=
 count <- GuitarPlot(feature_hg19, 
            genome="hg19", 
@@ -60,7 +60,7 @@ count <- GuitarPlot(feature_hg19,
 @
 
 
-In a more efficent protocol, in order to re-use the gene annotation and Guitar coordiantes, you will have to build Guitar Coordiantes from a \Rclass{TxDb} object in a separate step. The transcriptDb contains the gene annotation information and can be obtained in a number of ways, .e.g, with command \Rfunction{makeTxDbFromUCSC} from \Rpackage{GenomicFeatures} package to download the complete gene annotation of species from UCSC automatically, which might takes a few minutes. In the following analysis, we load the \Rclass{TxDb} object from a toy dataset provided with the Guitar package. Please note that this is only a very small part of the complete hg19 transcriptome, and the \Rclass{TxDb} object provided with Guitar package should not be used in real data analysis. 
+In a more efficent protocol, in order to re-use the gene annotation and \Rclass{Guitar coordinates}, you will have to build Guitar Coordiantes from a \Rclass{TxDb} object in a separate step. The transcriptDb contains the gene annotation information and can be obtained in a number of ways, .e.g, with command \Rfunction{makeTxDbFromUCSC} from \Rpackage{GenomicFeatures} package to download the complete gene annotation of species from UCSC automatically, which might takes a few minutes. In the following analysis, we load the \Rclass{TxDb} object from a toy dataset provided with the Guitar package. Please note that this is only a very small part of the complete hg19 transcriptome, and the \Rclass{TxDb} object provided with \Rpackage{Guitar} package should not be used in real data analysis. 
 <<Txdb>>=
 txdb_file <- system.file("extdata", "hg19_toy.sqlite", 
                          package="Guitar")
@@ -69,28 +69,28 @@ txdb <- loadDb(txdb_file)
 # txdb <- makeTxDbFromUCSC(genome="hg19)
 @
 
-With a \Rclass{TxDb} object that contains gene annotation information, we in the next build Guitar coordiantes, which is essentially a bridge connects the transcriptomic landmarks and genomic coordinates. The parameter \Rcode{noBins=20} defines the resolution of your analysis, higher resolution will lead to increases computation time and memory usage.
+With a \Rclass{TxDb} object that contains gene annotation information, we in the next build \Rclass{Guitar coordiantes}, which is essentially a bridge connects the transcriptomic landmarks and genomic coordinates. The parameter \Rcode{noBins=20} defines the resolution of your analysis. Higher resolution will lead to finer details revealed and increased computation time and memory usage.
 <<guitar coordiantes>>=
 gc_txdb <- makeGuitarCoordsFromTxDb(txdb, noBins=20)
 @
 
-You may now generate the Guitar plot from the named list of genome-based features and the prebuilt Guitar coordinates.
+You may now generate the Guitar plot from the named list of genome-based features and the prebuilt \Rclass{Guitar coordinates}.
 <<label=Guitarcoordiantes, fig=TRUE,echo=TRUE,height=6,width=12>>=
-count <- GuitarPlot(feature_hg19, 
+GuitarPlot(gfeatures = feature_hg19, 
            GuitarCoordsFromTxDb = gc_txdb,
            saveToPDFprefix = "example2")
 @
 
 The figure generated reflects the true size of RNA components (5'UTR, CDS and 3'UTR); alternatively, you may cancel the component rescaling, and treat each component equally with option \Rcode{rescaleComponent=FALSE}. The figure generated in this way looks clearer, but the relative size of the components will be missing. In this way, 5'UTR, although is mucher smaller, shows up to be of the same size as CDS and 3'UTR.
 <<label=withDNA2, fig=TRUE,echo=TRUE,height=6,width=12>>=
-count <- GuitarPlot(feature_hg19, 
+GuitarPlot(gfeatures = feature_hg19, 
            GuitarCoordsFromTxDb = gc_txdb,
            rescaleComponent=FALSE)
 @
 
 Alternatively, you may also stack everthing together to see their relative location-specific density compared with other features tested, or you may also optionally include the promoter DNA region and its complementary region on the 3' side of a transcript in the plot with parameter \Rcode{includeNeighborDNA =TRUE} and \Rcode{fill=TRUE}. 
 <<label=withDNA3,fig=TRUE,echo=TRUE,height=6,width=12>>=
-count <- GuitarPlot(feature_hg19, 
+GuitarPlot(gfeatures = feature_hg19, 
            GuitarCoordsFromTxDb = gc_txdb,
            includeNeighborDNA =TRUE,
            rescaleComponent=FALSE,
@@ -98,13 +98,100 @@ count <- GuitarPlot(feature_hg19,
 @
 
 
+\section{Supported Data Format}
+Besides BED12 format, \Rpackage{Guitar} package also supports BAM/SAM and bed3 via GRangesList, GRanges and GAlignments data structures. Please see the following examples.
+
+<<label=mm10_example,fig=TRUE,echo=TRUE,height=6,width=12>>=
+# import different data formats into a named list object.
+# These genomic features are using mm10 genome assembly
+bed3=system.file("extdata", "H3K4me3_mm10_1000peaks.bed", package="Guitar")
+bed12=system.file("extdata", "m6A_mm10_exomePeak_1000peaks_bed12.bed", package="Guitar")
+bam1=system.file("extdata", "866991_part.bam", package="Guitar")
+bam2=system.file("extdata", "866992_part.bam", package="Guitar")
+H3K4me3 <- import.bed(bed3) # bed3 imported as GRanges
+m6A_HepG2 <- BED12toGRangesList(bed12) # bed12 imported as GRangesList
+MeRIP_IP <- readGAlignments(bam1) # bam imported as GAlignments
+MeRIP_Input <- readGAlignments(bam2) # bam imported as GAlignments
+feature_mm10 <- list(H3K4me3,m6A_HepG2,MeRIP_IP,MeRIP_Input) 
+names(feature_mm10) <- c("H3K4me3", "m6A_HepG2", "IP","Input")
+
+# Build Guitar Coordinates
+txdb_file <- system.file("extdata", "mm10_toy.sqlite", 
+                         package="Guitar")
+mm10_toy_txdb <- loadDb(txdb_file)
+gc_mm10_txdb <- makeGuitarCoordsFromTxDb(mm10_toy_txdb, noBins=30)
+
+# Guitar Plot
+GuitarPlot(gfeatures = feature_mm10, 
+           GuitarCoordsFromTxDb = gc_mm10_txdb,
+           rescaleComponent=FALSE)
+@
+
+\section{Analysis of BS-Seq data report from Bismark}
+Here is one more example for analysis of DNA m5C methylation from BS-Seq data.
+
+<<label=bsseq, eval=FALSE>>=
+f <-system.file("extdata", "DNAm5C_mm10_10000sites_bismark.cov", package="Guitar") 
+a <- read.table(f,header=FALSE,sep="\t")
+q <- a[[5]]
+size <- a[[5]]+a[[6]]
+mean_methy <- sum(q)/sum(size)
+d0 <- (pbinom(q, size, mean_methy, lower.tail = TRUE, log.p = FALSE) < 0.05)
+d1 <- (pbinom(q, size, mean_methy, lower.tail = FALSE, log.p = FALSE) < 0.05)  
+GR <- GRanges(seqnames = a[,1], ranges = IRanges(start=a[,2], width=1))
+peak <- list(GR[d1],GR[d1+d0 == 0],GR[d0])
+names(peak) <- c( "higher", "unsure", "lower")
+
+TxDb.Mmusculus.UCSC.mm10.knownGene <- makeTxDbFromUCSC(genome="mm10")
+gc_mm10_txdb <- makeGuitarCoordsFromTxDb(TxDb.Mmusculus.UCSC.mm10.knownGene)
+GuitarPlot(gfeatures = peak,
+           GuitarCoordsFromTxDb = gc_mm10_txdb,
+           includeNeighborDNA =TRUE,
+           fill=TRUE)
+@
+
+
 \section{Guitar Coordinates - Transcriptomic Landmarks Projected on Genome} 
-The "GuitarCoordsFromTxDb" object contains the genome-projected transcriptome coordinates, which can be valuable for evaluating transcriptomic information related applications, such as checking the quality of MeRIP-Seq data. The Guitar coordinates are essentially the genomic projection of standardized transcript-based coordiantes, making a viable bridge beween the landmarks on transcript and genome-based coordinates. The referred "transcript id", standardized position, the interval between two adjacent check points on that components, component name and type are assessible with "mcols" function.
+The \Robject{GuitarCoordsFromTxDb} object contains the genome-projected transcriptome coordinates, which can be valuable for evaluating transcriptomic information related applications, such as checking the quality of MeRIP-Seq data. The \Robject{Guitar coordinates} are essentially the genomic projection of standardized transcript-based coordiantes, making a viable bridge beween the landmarks on transcript and genome-based coordinates. The referred "transcript id", standardized position, the interval between two adjacent check points on that components, component name and type are assessible with \Rfunction{mcols} function.
 
 <<label=session,eval=TRUE>>=
 head(gc_txdb)
 mcols(gc_txdb)
 @
+
+\section{Check the Overlapping between Different Components} 
+We can also check the distribution of the Guitar coordinates built. Firstly, extract these RNA components
+
+<<label=comp,eval=TRUE>>=
+TravisCoords <- gc_txdb
+type <- paste(mcols(TravisCoords)$comp,mcols(TravisCoords)$category)
+key <- unique(type)
+landmark <- list(1,2,3,4,5,6,7,8)
+names(landmark) <- key  
+for (i in 1:length(key)) {
+  landmark[[i]] <- TravisCoords[type==key[i]]
+}
+@
+
+Check the distribution of mRNA components in the transcriptome
+
+<<label=mcp,fig=TRUE,echo=TRUE,height=6,width=12>>=
+GuitarPlot(gfeatures=landmark[1:5], 
+           GuitarCoordsFromTxDb = gc_txdb,
+           includeNeighborDNA =TRUE,
+           rescaleComponent=FALSE)
+@
+
+Check the distribution of lncRNA components in the transcriptome
+
+<<label=lcp,fig=TRUE,echo=TRUE,height=6,width=12>>=
+GuitarPlot(gfeatures=landmark[6:8], 
+           GuitarCoordsFromTxDb = gc_txdb,
+           includeNeighborDNA =TRUE,
+           rescaleComponent=FALSE)
+@
+
+
 
 
 \section{Session Information} 
