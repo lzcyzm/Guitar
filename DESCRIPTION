@@ -1,7 +1,7 @@
 Package: Guitar
 Type: Package
 Title: Guitar
-Version: 1.3.1
+Version: 1.3.2
 Date: 2015-10-18
 Author: Jia Meng
 Maintainer: Jia Meng <jia.meng@xjtlu.edu.cn>
@@ -14,4 +14,4 @@ Depends: Rsamtools, GenomicFeatures, rtracklayer, GenomicAlignments,
 biocViews: Sequencing, SplicedAlignment, Alignment, DataImport, RNASeq,
         MethylSeq, QualityControl, Transcription, Coverage
 NeedsCompilation: no
-Packaged: 2015-10-19 06:56:42 UTC; bioinfo
+Packaged: 2015-10-20 03:48:11 UTC; bioinfo
